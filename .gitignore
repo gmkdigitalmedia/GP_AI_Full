@@ -45,3 +45,6 @@ Thumbs.db
 # API Keys
 *.env
 .env.local
+
+# Vercel
+.vercel
