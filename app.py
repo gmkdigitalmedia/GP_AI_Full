@@ -223,29 +223,29 @@ else:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("""
-        ### 🚀 Welcome to AI Business Advisor!
+        ###  Welcome to AI Business Advisor!
 
         **Get expert business advice powered by AI**
 
-        #### 🎯 What you can do:
+        ####  What you can do:
         - Get funding strategy advice from a VC perspective
         - Receive technical guidance for your product
         - Learn marketing tactics to grow your business
         - Plan your finances and business model
 
-        #### 🔧 To get started:
+        ####  To get started:
         1. Add your OpenAI API key in the sidebar
         2. Choose your preferred advisor type
         3. Start asking business questions!
 
-        #### 💡 Example questions:
+        ####  Example questions:
         - "How should I price my SaaS product?"
         - "What's the best go-to-market strategy for a B2B tool?"
         - "How do I validate my business idea?"
         - "What metrics should I track for my startup?"
         """)
 
-        st.info("💡 **Tip**: Get your free OpenAI API key at https://platform.openai.com/")
+        st.info(" **Tip**: Get your free OpenAI API key at https://platform.openai.com/")
 
 # Footer
 st.markdown("---")
