@@ -1,0 +1,78 @@
+{
+  "release_recommendation": "APPROVE",
+  "all_checks_passed": true,
+  "passed_checks": [
+    "accuracy",
+    "precision",
+    "recall",
+    "f1_score",
+    "loss",
+    "inference_time",
+    "per_class_accuracy",
+    "confidence"
+  ],
+  "failed_checks": [],
+  "total_checks": 8,
+  "passed_count": 8,
+  "failed_count": 0,
+  "checks_detail": {
+    "accuracy": {
+      "value": 0.994,
+      "threshold": 0.95,
+      "passed": true,
+      "description": "Overall accuracy meets minimum threshold"
+    },
+    "precision": {
+      "value": 0.9940016078411815,
+      "threshold": 0.9,
+      "passed": true,
+      "description": "Macro-averaged precision meets minimum threshold"
+    },
+    "recall": {
+      "value": 0.9939461313104173,
+      "threshold": 0.9,
+      "passed": true,
+      "description": "Macro-averaged recall meets minimum threshold"
+    },
+    "f1_score": {
+      "value": 0.9939666568936868,
+      "threshold": 0.9,
+      "passed": true,
+      "description": "Macro-averaged F1 score meets minimum threshold"
+    },
+    "loss": {
+      "value": 0.018366379770622228,
+      "threshold": 0.2,
+      "passed": true,
+      "description": "Average loss is below maximum threshold"
+    },
+    "inference_time": {
+      "value": 0.06453837653633895,
+      "threshold": 100.0,
+      "passed": true,
+      "description": "Average inference time meets performance requirement"
+    },
+    "per_class_accuracy": {
+      "value": 0.9871159563924677,
+      "threshold": 0.8,
+      "passed": true,
+      "description": "All classes meet minimum accuracy threshold"
+    },
+    "confidence": {
+      "value": 0.9942420125007629,
+      "threshold": 0.7,
+      "passed": true,
+      "description": "Mean prediction confidence meets minimum threshold"
+    }
+  },
+  "thresholds_used": {
+    "min_accuracy": 0.95,
+    "min_precision": 0.9,
+    "min_recall": 0.9,
+    "min_f1_score": 0.9,
+    "max_loss": 0.2,
+    "min_per_class_accuracy": 0.8,
+    "max_inference_time_ms": 100.0,
+    "min_confidence_threshold": 0.7
+  }
+}

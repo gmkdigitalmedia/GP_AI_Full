@@ -1,0 +1,19 @@
+{
+  "model_type": "CNN",
+  "num_classes": 10,
+  "input_channels": 1,
+  "conv_channels": [
+    32,
+    64,
+    128
+  ],
+  "fc_hidden_dims": [
+    256,
+    128
+  ],
+  "dropout_rate": 0.5,
+  "use_batch_norm": true,
+  "activation": "relu",
+  "total_parameters": 652618,
+  "trainable_parameters": 652618
+}

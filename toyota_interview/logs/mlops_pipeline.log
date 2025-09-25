@@ -1,0 +1,2 @@
+2025-09-25 17:30:11,378 - __main__ - ERROR - main.py:489 - Pipeline failed: [Errno 17] File exists: 'logs/mlops_pipeline.log'
+2025-09-25 17:33:38,639 - __main__ - ERROR - main.py:495 - Pipeline failed: [Errno 17] File exists: 'logs/mlops_pipeline.log'

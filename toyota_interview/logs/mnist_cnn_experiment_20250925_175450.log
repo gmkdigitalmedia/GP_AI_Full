@@ -1,0 +1,2 @@
+2025-09-25 17:54:50,601 - mnist_cnn_experiment - INFO - Data info: {'data_dir': './data', 'batch_size': 64, 'validation_split': 0.1}
+2025-09-25 17:55:11,409 - mnist_cnn_experiment - INFO - Model info: {'model_type': 'CNN', 'num_classes': 10, 'input_channels': 1, 'conv_channels': [32, 64, 128], 'fc_hidden_dims': [256, 128], 'dropout_rate': 0.5, 'use_batch_norm': True, 'activation': 'relu', 'total_parameters': 652618, 'trainable_parameters': 652618}
