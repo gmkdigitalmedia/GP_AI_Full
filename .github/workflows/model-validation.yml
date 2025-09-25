@@ -28,6 +28,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd toyota_interview
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
@@ -39,6 +40,7 @@ jobs:
 
     - name: Validate model architecture
       run: |
+        cd toyota_interview
         python -c "
         import sys
         sys.path.append('src')
@@ -58,6 +60,7 @@ jobs:
 
     - name: Run model evaluation
       run: |
+        cd toyota_interview
         python main.py --config ${{ github.event.inputs.evaluation_config }} --mode evaluate || true
 
     - name: Generate validation report

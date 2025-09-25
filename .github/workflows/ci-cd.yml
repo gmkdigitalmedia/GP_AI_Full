@@ -50,6 +50,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd toyota_interview
+        cd toyota_interview
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install flake8 black pytest pytest-cov mypy
@@ -96,7 +97,7 @@ jobs:
     - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
-        context: .
+        context: toyota_interview
         target: production
         push: false
         tags: mnist-mlops:test
@@ -134,11 +135,13 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd toyota_interview
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Create CI training configuration
       run: |
+        cd toyota_interview
         cat > config/ci_config.yaml << EOF
         experiment_name: "ci_mnist_experiment"
         random_seed: 42
@@ -168,6 +171,7 @@ jobs:
 
     - name: Run training pipeline
       run: |
+        cd toyota_interview
         python main.py --config config/ci_config.yaml --mode train
 
     - name: Upload training artifacts
@@ -196,6 +200,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd toyota_interview
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
@@ -276,6 +281,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd toyota_interview
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
@@ -351,7 +357,7 @@ jobs:
     - name: Build and push production image
       uses: docker/build-push-action@v5
       with:
-        context: .
+        context: toyota_interview
         target: production
         push: true
         tags: |
