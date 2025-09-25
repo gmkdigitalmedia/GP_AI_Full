@@ -38,6 +38,8 @@ env/
 ENV/
 .venv/
 .env
+.env.*
+.env.save
 
 # Logs
 *.log
