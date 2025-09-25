@@ -15,7 +15,7 @@ from datetime import datetime
 def setup_logging(
     log_level: str = "INFO",
     log_file: Optional[str] = None,
-    log_format: Optional[str] = None
+    log_format: Optional[str] = None,
 ) -> None:
     """
     Set up logging configuration for the entire application.
@@ -55,7 +55,7 @@ def setup_logging(
             log_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Use append mode to avoid conflicts
-            file_handler = logging.FileHandler(log_file, mode='a')
+            file_handler = logging.FileHandler(log_file, mode="a")
             file_handler.setFormatter(formatter)
             file_handler.setLevel(getattr(logging, log_level.upper()))
             root_logger.addHandler(file_handler)
@@ -90,7 +90,9 @@ class MLOpsLogger:
         self.logger = get_logger(name)
         self.log_file = log_file
 
-        if log_file and not any(isinstance(h, logging.FileHandler) for h in self.logger.handlers):
+        if log_file and not any(
+            isinstance(h, logging.FileHandler) for h in self.logger.handlers
+        ):
             # Add file handler if not already present
             log_path = Path(log_file)
             log_path.parent.mkdir(parents=True, exist_ok=True)

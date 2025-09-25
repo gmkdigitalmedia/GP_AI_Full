@@ -101,9 +101,11 @@ class TestMNISTCNNModel:
             loaded_model = MNISTCNNModel.load_model(str(model_path))
             assert loaded_model is not None
 
-            # Test loaded model
-            test_input = torch.randn(1, 1, 28, 28)
+            # Test loaded model with batch size > 1 to avoid batch norm issues
+            test_input = torch.randn(2, 1, 28, 28)
             with torch.no_grad():
+                model.eval()  # Set to eval mode to avoid batch norm training issues
+                loaded_model.eval()
                 original_output = model(test_input)
                 loaded_output = loaded_model(test_input)
 
@@ -128,12 +130,12 @@ class TestMNISTCNNModel:
         model = MNISTCNNModel()
 
         # Test with wrong number of dimensions
-        with pytest.raises((ValidationError, RuntimeError)):
+        with pytest.raises((ModelError, ValidationError, RuntimeError)):
             invalid_input = torch.randn(28, 28)  # Missing batch and channel dims
             model(invalid_input)
 
         # Test with wrong number of channels
-        with pytest.raises((ValidationError, RuntimeError)):
+        with pytest.raises((ModelError, ValidationError, RuntimeError)):
             invalid_input = torch.randn(1, 3, 28, 28)  # 3 channels instead of 1
             model(invalid_input)
 

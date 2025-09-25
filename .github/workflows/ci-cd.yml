@@ -50,7 +50,6 @@ jobs:
     - name: Install dependencies
       run: |
         cd toyota_interview
-        cd toyota_interview
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install flake8 black pytest pytest-cov mypy
@@ -212,6 +211,7 @@ jobs:
 
     - name: Run quick evaluation test
       run: |
+        cd toyota_interview
         # Create a minimal evaluation test
         python -c "
         import sys
@@ -248,11 +248,13 @@ jobs:
     - name: Run Bandit security scan
       run: |
         pip install bandit
+        cd toyota_interview
         bandit -r src/ -f json -o bandit-report.json || true
 
     - name: Run Safety check for dependencies
       run: |
         pip install safety
+        cd toyota_interview
         safety check --json --output safety-report.json || true
 
     - name: Upload security reports
@@ -260,8 +262,8 @@ jobs:
       with:
         name: security-reports
         path: |
-          bandit-report.json
-          safety-report.json
+          toyota_interview/bandit-report.json
+          toyota_interview/safety-report.json
         retention-days: 30
 
   # Job 6: Performance Benchmarking
@@ -292,6 +294,7 @@ jobs:
 
     - name: Run performance benchmark
       run: |
+        cd toyota_interview
         python -c "
         import time
         import torch
@@ -368,6 +371,7 @@ jobs:
 
     - name: Create model package
       run: |
+        cd toyota_interview
         # Package model artifacts
         tar -czf model-package-${{ github.sha }}.tar.gz artifacts/ config/ logs/
 
@@ -375,7 +379,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: model-package
-        path: model-package-${{ github.sha }}.tar.gz
+        path: toyota_interview/model-package-${{ github.sha }}.tar.gz
         retention-days: 90
 
   # Job 8: Notification and Reporting

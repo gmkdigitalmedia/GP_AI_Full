@@ -28,18 +28,19 @@ logger = get_logger(__name__)
 @dataclass
 class TrainingConfig:
     """Configuration for training process."""
+
     epochs: int = 10
     learning_rate: float = 0.001
-    optimizer: str = 'adam'
-    scheduler: str = 'plateau'
+    optimizer: str = "adam"
+    scheduler: str = "plateau"
     scheduler_params: Dict[str, Any] = None
-    criterion: str = 'cross_entropy'
+    criterion: str = "cross_entropy"
     early_stopping_patience: int = 5
     save_checkpoints: bool = True
-    checkpoint_dir: str = 'artifacts/models/checkpoints'
+    checkpoint_dir: str = "artifacts/models/checkpoints"
     save_best_only: bool = True
     validation_frequency: int = 1
-    device: str = 'auto'
+    device: str = "auto"
     mixed_precision: bool = False
     gradient_clip_val: Optional[float] = None
 
@@ -47,14 +48,16 @@ class TrainingConfig:
         if self.scheduler_params is None:
             self.scheduler_params = {}
 
-        if self.device == 'auto':
-            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        if self.device == "auto":
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class EarlyStopping:
     """Early stopping to prevent overfitting."""
 
-    def __init__(self, patience: int = 7, min_delta: float = 0.0, restore_best: bool = True):
+    def __init__(
+        self, patience: int = 7, min_delta: float = 0.0, restore_best: bool = True
+    ):
         self.patience = patience
         self.min_delta = min_delta
         self.restore_best = restore_best
@@ -100,12 +103,12 @@ class MetricsTracker:
 
     def __init__(self):
         self.metrics = {
-            'train_loss': [],
-            'train_accuracy': [],
-            'val_loss': [],
-            'val_accuracy': [],
-            'learning_rates': [],
-            'epochs': []
+            "train_loss": [],
+            "train_accuracy": [],
+            "val_loss": [],
+            "val_accuracy": [],
+            "learning_rates": [],
+            "epochs": [],
         }
 
     def update(self, **kwargs) -> None:
@@ -119,20 +122,20 @@ class MetricsTracker:
         latest = {}
         for key, values in self.metrics.items():
             if values:
-                latest[f'latest_{key}'] = values[-1]
+                latest[f"latest_{key}"] = values[-1]
         return latest
 
     def get_best(self) -> Dict[str, float]:
         """Get best metrics."""
         best = {}
-        if self.metrics['train_accuracy']:
-            best['best_train_accuracy'] = max(self.metrics['train_accuracy'])
-        if self.metrics['val_accuracy']:
-            best['best_val_accuracy'] = max(self.metrics['val_accuracy'])
-        if self.metrics['train_loss']:
-            best['best_train_loss'] = min(self.metrics['train_loss'])
-        if self.metrics['val_loss']:
-            best['best_val_loss'] = min(self.metrics['val_loss'])
+        if self.metrics["train_accuracy"]:
+            best["best_train_accuracy"] = max(self.metrics["train_accuracy"])
+        if self.metrics["val_accuracy"]:
+            best["best_val_accuracy"] = max(self.metrics["val_accuracy"])
+        if self.metrics["train_loss"]:
+            best["best_train_loss"] = min(self.metrics["train_loss"])
+        if self.metrics["val_loss"]:
+            best["best_val_loss"] = min(self.metrics["val_loss"])
         return best
 
     def to_dict(self) -> Dict[str, Any]:
@@ -157,7 +160,7 @@ class ModelTrainer:
         self,
         model: MNISTCNNModel,
         config: TrainingConfig,
-        logger: Optional[MLOpsLogger] = None
+        logger: Optional[MLOpsLogger] = None,
     ):
         """
         Initialize trainer.
@@ -207,9 +210,11 @@ class ModelTrainer:
 
             logger.info(f"Training device: {self.device}")
 
-            if self.device.type == 'cuda':
+            if self.device.type == "cuda":
                 logger.info(f"GPU: {torch.cuda.get_device_name()}")
-                logger.info(f"GPU Memory: {torch.cuda.get_device_properties(self.device).total_memory // 1024**3} GB")
+                logger.info(
+                    f"GPU Memory: {torch.cuda.get_device_properties(self.device).total_memory // 1024**3} GB"
+                )
 
         except Exception as e:
             raise TrainingError(f"Failed to setup device: {e}")
@@ -218,10 +223,10 @@ class ModelTrainer:
         """Setup optimizer."""
         try:
             optimizers = {
-                'adam': optim.Adam,
-                'adamw': optim.AdamW,
-                'sgd': optim.SGD,
-                'rmsprop': optim.RMSprop
+                "adam": optim.Adam,
+                "adamw": optim.AdamW,
+                "sgd": optim.SGD,
+                "rmsprop": optim.RMSprop,
             }
 
             if self.config.optimizer not in optimizers:
@@ -229,18 +234,18 @@ class ModelTrainer:
 
             optimizer_class = optimizers[self.config.optimizer]
 
-            if self.config.optimizer in ['sgd']:
+            if self.config.optimizer in ["sgd"]:
                 self.optimizer = optimizer_class(
                     self.model.parameters(),
                     lr=self.config.learning_rate,
                     momentum=0.9,
-                    weight_decay=1e-4
+                    weight_decay=1e-4,
                 )
             else:
                 self.optimizer = optimizer_class(
                     self.model.parameters(),
                     lr=self.config.learning_rate,
-                    weight_decay=1e-4
+                    weight_decay=1e-4,
                 )
 
             logger.info(f"Optimizer: {self.config.optimizer}")
@@ -251,26 +256,26 @@ class ModelTrainer:
     def _setup_scheduler(self) -> None:
         """Setup learning rate scheduler."""
         try:
-            if self.config.scheduler == 'plateau':
+            if self.config.scheduler == "plateau":
                 self.scheduler = ReduceLROnPlateau(
                     self.optimizer,
-                    mode='max',
+                    mode="max",
                     factor=0.5,
                     patience=3,
-                    **self.config.scheduler_params
+                    **self.config.scheduler_params,
                 )
-            elif self.config.scheduler == 'step':
+            elif self.config.scheduler == "step":
                 self.scheduler = StepLR(
                     self.optimizer,
                     step_size=5,
                     gamma=0.5,
-                    **self.config.scheduler_params
+                    **self.config.scheduler_params,
                 )
-            elif self.config.scheduler == 'cosine':
+            elif self.config.scheduler == "cosine":
                 self.scheduler = CosineAnnealingLR(
                     self.optimizer,
                     T_max=self.config.epochs,
-                    **self.config.scheduler_params
+                    **self.config.scheduler_params,
                 )
             else:
                 self.scheduler = None
@@ -283,9 +288,9 @@ class ModelTrainer:
     def _setup_criterion(self) -> None:
         """Setup loss function."""
         try:
-            if self.config.criterion == 'cross_entropy':
+            if self.config.criterion == "cross_entropy":
                 self.criterion = nn.CrossEntropyLoss()
-            elif self.config.criterion == 'nll_loss':
+            elif self.config.criterion == "nll_loss":
                 self.criterion = nn.NLLLoss()
             else:
                 raise ValidationError(f"Unsupported criterion: {self.config.criterion}")
@@ -299,8 +304,7 @@ class ModelTrainer:
         """Setup early stopping."""
         if self.config.early_stopping_patience > 0:
             self.early_stopping = EarlyStopping(
-                patience=self.config.early_stopping_patience,
-                restore_best=True
+                patience=self.config.early_stopping_patience, restore_best=True
             )
         else:
             self.early_stopping = None
@@ -369,9 +373,9 @@ class ModelTrainer:
                 # Log progress
                 if batch_idx % 100 == 0:
                     logger.info(
-                        f'Batch {batch_idx}/{len(train_loader)}: '
-                        f'Loss: {loss.item():.6f}, '
-                        f'Accuracy: {100. * correct / total:.2f}%'
+                        f"Batch {batch_idx}/{len(train_loader)}: "
+                        f"Loss: {loss.item():.6f}, "
+                        f"Accuracy: {100. * correct / total:.2f}%"
                     )
 
             except Exception as e:
@@ -379,7 +383,7 @@ class ModelTrainer:
                 raise TrainingError(f"Training failed at batch {batch_idx}: {e}")
 
         avg_loss = total_loss / len(train_loader)
-        accuracy = 100. * correct / total
+        accuracy = 100.0 * correct / total
 
         return avg_loss, accuracy
 
@@ -421,37 +425,34 @@ class ModelTrainer:
                     raise TrainingError(f"Validation failed: {e}")
 
         avg_loss = total_loss / len(val_loader)
-        accuracy = 100. * correct / total
+        accuracy = 100.0 * correct / total
 
         return avg_loss, accuracy
 
     def save_checkpoint(
-        self,
-        epoch: int,
-        metrics: Dict[str, float],
-        is_best: bool = False
+        self, epoch: int, metrics: Dict[str, float], is_best: bool = False
     ) -> None:
         """Save model checkpoint."""
         try:
             checkpoint = {
-                'epoch': epoch,
-                'model_state_dict': self.model.state_dict(),
-                'optimizer_state_dict': self.optimizer.state_dict(),
-                'metrics': metrics,
-                'config': asdict(self.config),
-                'model_info': self.model.get_model_info()
+                "epoch": epoch,
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "metrics": metrics,
+                "config": asdict(self.config),
+                "model_info": self.model.get_model_info(),
             }
 
             if self.scheduler:
-                checkpoint['scheduler_state_dict'] = self.scheduler.state_dict()
+                checkpoint["scheduler_state_dict"] = self.scheduler.state_dict()
 
             # Save checkpoint
-            checkpoint_path = self.checkpoint_dir / f'checkpoint_epoch_{epoch}.pt'
+            checkpoint_path = self.checkpoint_dir / f"checkpoint_epoch_{epoch}.pt"
             torch.save(checkpoint, checkpoint_path)
 
             # Save best model
             if is_best:
-                best_path = self.checkpoint_dir / 'best_model.pt'
+                best_path = self.checkpoint_dir / "best_model.pt"
                 torch.save(checkpoint, best_path)
                 logger.info(f"New best model saved at epoch {epoch}")
 
@@ -462,9 +463,7 @@ class ModelTrainer:
             raise TrainingError(f"Checkpoint saving failed: {e}")
 
     def train(
-        self,
-        train_loader: DataLoader,
-        val_loader: Optional[DataLoader] = None
+        self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None
     ) -> Dict[str, Any]:
         """
         Train the model.
@@ -497,35 +496,39 @@ class ModelTrainer:
                     val_loss, val_acc = self.validate_epoch(val_loader)
 
                 # Update metrics
-                current_lr = self.optimizer.param_groups[0]['lr']
+                current_lr = self.optimizer.param_groups[0]["lr"]
                 self.metrics_tracker.update(
                     train_loss=train_loss,
                     train_accuracy=train_acc,
                     val_loss=val_loss,
                     val_accuracy=val_acc,
                     learning_rates=current_lr,
-                    epochs=epoch + 1
+                    epochs=epoch + 1,
                 )
 
                 # Log metrics
                 epoch_metrics = {
-                    'epoch': epoch + 1,
-                    'train_loss': train_loss,
-                    'train_accuracy': train_acc,
-                    'val_loss': val_loss,
-                    'val_accuracy': val_acc,
-                    'learning_rate': current_lr,
-                    'epoch_time': time.time() - epoch_start
+                    "epoch": epoch + 1,
+                    "train_loss": train_loss,
+                    "train_accuracy": train_acc,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_acc,
+                    "learning_rate": current_lr,
+                    "epoch_time": time.time() - epoch_start,
                 }
 
                 self.logger.log_metrics(epoch_metrics, step=epoch + 1)
 
-                logger.info(f"Train Loss: {train_loss:.6f}, Train Acc: {train_acc:.2f}%")
+                logger.info(
+                    f"Train Loss: {train_loss:.6f}, Train Acc: {train_acc:.2f}%"
+                )
                 if val_loader:
                     logger.info(f"Val Loss: {val_loss:.6f}, Val Acc: {val_acc:.2f}%")
 
                 # Save checkpoint
-                is_best = val_acc > best_val_acc if val_loader else train_acc > best_val_acc
+                is_best = (
+                    val_acc > best_val_acc if val_loader else train_acc > best_val_acc
+                )
                 if is_best:
                     best_val_acc = max(val_acc, train_acc)
 
@@ -554,20 +557,23 @@ class ModelTrainer:
             final_metrics = {
                 **self.metrics_tracker.get_latest(),
                 **self.metrics_tracker.get_best(),
-                'total_training_time': total_time
+                "total_training_time": total_time,
             }
 
             self.logger.log_training_end(final_metrics, total_time)
 
             return {
-                'final_metrics': final_metrics,
-                'all_metrics': self.metrics_tracker.to_dict(),
-                'training_time': total_time,
-                'best_epoch': self.metrics_tracker.metrics['val_accuracy'].index(max(
-                    self.metrics_tracker.metrics['val_accuracy']
-                )) + 1 if self.metrics_tracker.metrics['val_accuracy'] else len(
-                    self.metrics_tracker.metrics['train_accuracy']
-                )
+                "final_metrics": final_metrics,
+                "all_metrics": self.metrics_tracker.to_dict(),
+                "training_time": total_time,
+                "best_epoch": (
+                    self.metrics_tracker.metrics["val_accuracy"].index(
+                        max(self.metrics_tracker.metrics["val_accuracy"])
+                    )
+                    + 1
+                    if self.metrics_tracker.metrics["val_accuracy"]
+                    else len(self.metrics_tracker.metrics["train_accuracy"])
+                ),
             }
 
         except Exception as e:
@@ -579,7 +585,7 @@ def train_model(
     model: MNISTCNNModel,
     train_loader: DataLoader,
     val_loader: Optional[DataLoader] = None,
-    config: Optional[Dict[str, Any]] = None
+    config: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     High-level training function.
