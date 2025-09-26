@@ -85,22 +85,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
     - name: Build Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        target: production
-        load: true
-        push: false
-        tags: mnist-mlops:test
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      run: |
+        docker build --target production -t mnist-mlops:test .
 
     - name: Test Docker image
       run: |
+        docker images
         docker run --rm mnist-mlops:test python -c "import torch; import src.models; print('Docker image test passed')"
 
   # Job 3: Model Training and Validation
