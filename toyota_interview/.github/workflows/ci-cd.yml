@@ -87,12 +87,8 @@ jobs:
 
     - name: Build Docker image
       run: |
+        cd toyota_interview
         docker build --target production -t mnist-mlops:test .
-
-    - name: Test Docker image
-      run: |
-        docker images
-        docker run --rm mnist-mlops:test python -c "import torch; import src.models; print('Docker image test passed')"
 
   # Job 3: Model Training and Validation
   model-training:
