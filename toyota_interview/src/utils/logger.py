@@ -90,19 +90,30 @@ class MLOpsLogger:
         self.logger = get_logger(name)
         self.log_file = log_file
 
-        if log_file and not any(
-            isinstance(h, logging.FileHandler) for h in self.logger.handlers
-        ):
-            # Add file handler if not already present
-            log_path = Path(log_file)
-            log_path.parent.mkdir(parents=True, exist_ok=True)
+        if log_file:
+            try:
+                # Add file handler if not already present
+                log_path = Path(log_file)
+                log_path.parent.mkdir(parents=True, exist_ok=True)
 
-            file_handler = logging.FileHandler(log_file)
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            file_handler.setFormatter(formatter)
-            self.logger.addHandler(file_handler)
+                # Check if file handler already exists for this file
+                existing_file_handler = None
+                for handler in self.logger.handlers:
+                    if isinstance(handler, logging.FileHandler) and handler.baseFilename == str(log_path.absolute()):
+                        existing_file_handler = handler
+                        break
+
+                if not existing_file_handler:
+                    file_handler = logging.FileHandler(log_file, mode="a")
+                    formatter = logging.Formatter(
+                        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                    )
+                    file_handler.setFormatter(formatter)
+                    self.logger.addHandler(file_handler)
+            except Exception as e:
+                # If file logging fails, continue without file logging
+                print(f"Warning: Could not setup file logging: {e}")
+                print("Continuing without file logging...")
 
     def log_experiment(self, experiment_name: str, parameters: dict) -> None:
         """Log experiment parameters."""
