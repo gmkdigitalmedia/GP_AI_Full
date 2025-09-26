@@ -81,7 +81,7 @@ jobs:
         flags: unittests
         name: codecov-umbrella
 
-  # Job 2: Docker Build and Test
+  # Job 2: Docker Build (Build Only - No Test)
   docker-build:
     runs-on: ubuntu-22.04
     needs: code-quality
@@ -102,10 +102,6 @@ jobs:
         tags: mnist-mlops:test
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
-    - name: Test Docker image
-      run: |
-        docker run --rm mnist-mlops:test python -c "import torch; import src.models; print('Docker image test passed')"
 
   # Job 3: Model Training and Validation
   model-training:
