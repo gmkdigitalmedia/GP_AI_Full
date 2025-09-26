@@ -108,7 +108,6 @@ jobs:
   model-training:
     runs-on: ubuntu-22.04
     needs: [code-quality, docker-build]
-    if: github.event.inputs.run_training == 'true' || github.event_name == 'schedule'
 
     strategy:
       matrix:
@@ -184,7 +183,6 @@ jobs:
   model-evaluation:
     runs-on: ubuntu-22.04
     needs: [code-quality, docker-build]
-    if: always() && (github.event.inputs.run_evaluation == 'true' || needs.model-training.result == 'success')
 
     steps:
     - name: Checkout code
@@ -269,7 +267,6 @@ jobs:
   performance-benchmark:
     runs-on: ubuntu-22.04
     needs: model-training
-    if: needs.model-training.result == 'success'
 
     steps:
     - name: Checkout code
@@ -336,7 +333,6 @@ jobs:
   model-registry:
     runs-on: ubuntu-22.04
     needs: [model-training, model-evaluation, performance-benchmark]
-    if: needs.model-training.result == 'success' && github.ref == 'refs/heads/main'
 
     steps:
     - name: Checkout code
