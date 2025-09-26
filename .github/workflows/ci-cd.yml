@@ -51,6 +51,7 @@ jobs:
       run: |
         cd toyota_interview
         python -m pip install --upgrade pip
+        pip install torch==2.0.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
         pip install flake8 black pytest pytest-cov mypy
 
@@ -132,6 +133,7 @@ jobs:
       run: |
         cd toyota_interview
         python -m pip install --upgrade pip
+        pip install torch==2.0.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
 
     - name: Create CI training configuration
@@ -197,6 +199,7 @@ jobs:
       run: |
         cd toyota_interview
         python -m pip install --upgrade pip
+        pip install torch==2.0.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
 
     - name: Download training artifacts (if available)
@@ -281,6 +284,7 @@ jobs:
       run: |
         cd toyota_interview
         python -m pip install --upgrade pip
+        pip install torch==2.0.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
 
     - name: Download training artifacts
