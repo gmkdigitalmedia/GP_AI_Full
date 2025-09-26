@@ -266,7 +266,7 @@ jobs:
   # Job 6: Performance Benchmarking
   performance-benchmark:
     runs-on: ubuntu-22.04
-    needs: model-training
+    needs: [code-quality, docker-build]
 
     steps:
     - name: Checkout code
@@ -333,7 +333,7 @@ jobs:
   # Job 7: Model Registry and Deployment Preparation
   model-registry:
     runs-on: ubuntu-22.04
-    needs: [model-training, model-evaluation, performance-benchmark]
+    needs: [code-quality, docker-build]
 
     steps:
     - name: Checkout code
@@ -344,6 +344,10 @@ jobs:
       with:
         name: training-artifacts-cpu
       continue-on-error: true
+
+    - name: Convert repository name to lowercase
+      id: lowercase
+      run: echo "repository=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -362,8 +366,8 @@ jobs:
         target: production
         push: true
         tags: |
-          ghcr.io/${{ github.repository }}/mnist-mlops:latest
-          ghcr.io/${{ github.repository }}/mnist-mlops:${{ github.sha }}
+          ghcr.io/${{ steps.lowercase.outputs.repository }}/mnist-mlops:latest
+          ghcr.io/${{ steps.lowercase.outputs.repository }}/mnist-mlops:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
