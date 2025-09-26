@@ -22,8 +22,8 @@ on:
         type: boolean
 
 env:
-  PYTHON_VERSION: '3.9'
-  PYTORCH_VERSION: '2.0.0'
+  PYTHON_VERSION: '3.10'
+  PYTORCH_VERSION: '2.0.1'
 
 jobs:
   # Job 1: Code Quality and Testing
@@ -93,6 +93,7 @@ jobs:
       with:
         context: .
         target: production
+        load: true
         push: false
         tags: mnist-mlops:test
         cache-from: type=gha
