@@ -1,4 +1,4 @@
-# Neural Monitoring System - Technical Documentation
+# Piramidal.ai Demo Neural Monitoring System - Technical Documentation
 
 ## System Overview
 
