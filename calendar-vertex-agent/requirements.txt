@@ -1,0 +1,15 @@
+google-cloud-aiplatform>=1.38.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
+google-api-python-client>=2.108.0
+google-cloud-logging>=3.8.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+rich>=13.6.0
+asyncio-mqtt>=0.16.0
+aiofiles>=23.0.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+langchain>=0.1.0
+langchain-google-vertexai>=0.1.0

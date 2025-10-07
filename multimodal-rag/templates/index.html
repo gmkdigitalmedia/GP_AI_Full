@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal RAG System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: #e3f2fd;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .message-sources {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .stats h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .documents-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .document-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .document-item:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Multimodal RAG System</h1>
+            <p>Upload documents, ask questions, get AI-powered answers with sources</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: Upload & Documents -->
+            <div class="left-panel">
+                <!-- Upload Area -->
+                <div class="card">
+                    <h2>Upload Documents</h2>
+                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">+</div>
+                        <p><strong>Click to upload</strong> or drag & drop files</p>
+                        <small>Supports: PDF, TXT, DOCX, Images (JPG, PNG, etc.)</small>
+                    </div>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.txt,.docx,.jpg,.jpeg,.png,.gif,.bmp,.webp">
+
+                    <div class="loading" id="uploadLoading">
+                        <div class="spinner"></div>
+                        <p>Processing document...</p>
+                    </div>
+
+                    <div id="uploadStatus"></div>
+                </div>
+
+                <!-- System Stats -->
+                <div class="card">
+                    <h2>System Stats</h2>
+                    <div class="stats" id="systemStats">
+                        <div class="stat-item">
+                            <span>Documents:</span>
+                            <span id="docCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Status:</span>
+                            <span id="systemStatus">Loading...</span>
+                        </div>
+                    </div>
+
+                    <h3>Recent Documents</h3>
+                    <div class="documents-list" id="documentsList">
+                        <p>No documents uploaded yet</p>
+                    </div>
+
+                    <button class="btn" onclick="refreshStats()" style="margin-top: 15px; width: 100%">
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Chat -->
+            <div class="card chat-container">
+                <h2>Chat with Your Documents</h2>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant">
+                        <p>Hello! I'm your AI assistant. Upload some documents and start asking questions!</p>
+                        <p>I can help you with:</p>
+                        <ul>
+                            <li>Finding information across your documents</li>
+                            <li>Summarizing content</li>
+                            <li>Analyzing images and charts</li>
+                            <li>Answering questions with sources</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="loading" id="chatLoading">
+                    <div class="spinner"></div>
+                    <p>AI is thinking...</p>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Ask a question about your documents...">
+                    <button class="btn" onclick="sendMessage()" id="sendBtn">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshStats();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // File input
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', handleFileUpload);
+
+            // Chat input
+            const chatInput = document.getElementById('chatInput');
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Drag and drop
+            const uploadArea = document.querySelector('.upload-area');
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleDrop);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+        }
+
+        async function handleFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+
+            if (files.length === 0) return;
+
+            for (let file of files) {
+                await uploadFile(file);
+            }
+
+            fileInput.value = '';
+            refreshStats();
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const uploadLoading = document.getElementById('uploadLoading');
+            const uploadStatus = document.getElementById('uploadStatus');
+
+            uploadLoading.style.display = 'block';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    uploadStatus.innerHTML = `
+                        <div class="success">
+                            SUCCESS: <strong>${result.filename}</strong> uploaded successfully!<br>
+                            <small>Summary: ${result.summary || 'Processing...'}</small>
+                        </div>
+                    `;
+                } else {
+                    uploadStatus.innerHTML = `
+                        <div class="error">
+                            ERROR: Failed to upload ${file.name}: ${result.error}
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                uploadStatus.innerHTML = `
+                    <div class="error">
+                        ERROR: Upload failed: ${error.message}
+                    </div>
+                `;
+            } finally {
+                uploadLoading.style.display = 'none';
+            }
+        }
+
+        async function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+
+            if (!message) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+            const chatLoading = document.getElementById('chatLoading');
+            const sendBtn = document.getElementById('sendBtn');
+
+            // Add user message
+            chatMessages.innerHTML += `
+                <div class="message user">
+                    <p>${message}</p>
+                </div>
+            `;
+
+            chatInput.value = '';
+            sendBtn.disabled = true;
+            chatLoading.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const result = await response.json();
+
+                // Add assistant response
+                let sourcesHtml = '';
+                if (result.sources && result.sources.length > 0) {
+                    sourcesHtml = `
+                        <div class="message-sources">
+                            <strong>Sources:</strong><br>
+                            ${result.sources.map((source, i) =>
+                                `${i+1}. ${source.filename} (${Math.round(source.similarity * 100)}% match)`
+                            ).join('<br>')}
+                        </div>
+                    `;
+                }
+
+                chatMessages.innerHTML += `
+                    <div class="message assistant">
+                        <p>${result.answer}</p>
+                        ${sourcesHtml}
+                    </div>
+                `;
+
+            } catch (error) {
+                chatMessages.innerHTML += `
+                    <div class="message assistant">
+                        <div class="error">
+                            ERROR: ${error.message}
+                        </div>
+                    </div>
+                `;
+            } finally {
+                sendBtn.disabled = false;
+                chatLoading.style.display = 'none';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        async function refreshStats() {
+            try {
+                const response = await fetch('/stats');
+                const stats = await response.json();
+
+                // Update document count
+                document.getElementById('docCount').textContent =
+                    stats.documents.total_documents || 0;
+
+                // Update system status
+                const modelsOk = stats.system.ollama_models;
+                const allModelsReady = Object.values(modelsOk).every(status => status === true);
+                document.getElementById('systemStatus').textContent =
+                    allModelsReady ? 'Ready' : 'Models Loading';
+
+                // Update documents list
+                const docsList = document.getElementById('documentsList');
+                if (stats.documents.recent_documents && stats.documents.recent_documents.length > 0) {
+                    docsList.innerHTML = stats.documents.recent_documents
+                        .map(doc => `
+                            <div class="document-item">
+                                <strong>${doc.metadata.filename}</strong><br>
+                                <small>${doc.metadata.file_type} • ${doc.metadata.summary ? doc.metadata.summary.substring(0, 60) + '...' : ''}</small>
+                            </div>
+                        `).join('');
+                } else {
+                    docsList.innerHTML = '<p>No documents uploaded yet</p>';
+                }
+
+            } catch (error) {
+                console.error('Failed to refresh stats:', error);
+                document.getElementById('systemStatus').textContent = 'Error';
+            }
+        }
+
+        // Drag and drop handlers
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            for (let file of files) {
+                uploadFile(file);
+            }
+            refreshStats();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Test</title>
+</head>
+<body>
+    <h1>MLOps Checker Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+    async function testAPI() {
+        document.getElementById('result').innerText = 'Testing...';
+
+        try {
+            const response = await fetch('http://localhost:8001/check', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    directory_path: "/mnt/c/Users/ibm/Desktop/gopal.shangari",
+                    checks: ["all"],
+                    use_ai: false
+                })
+            });
+
+            const data = await response.json();
+            document.getElementById('result').innerHTML = `
+                <h3>✅ SUCCESS!</h3>
+                <p>Directory: ${data.directory}</p>
+                <p>Readiness: ${data.deployment_readiness}/100</p>
+                <p>Issues: ${data.issues.length}</p>
+            `;
+        } catch (error) {
+            document.getElementById('result').innerHTML = `
+                <h3>❌ ERROR:</h3>
+                <p>${error.message}</p>
+            `;
+        }
+    }
+    </script>
+</body>
+</html>

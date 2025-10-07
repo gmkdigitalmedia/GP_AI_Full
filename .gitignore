@@ -56,3 +56,6 @@ data/
 *.exe
 *.dll
 *.node
+
+# Exclude nested git repositories
+piramidal/

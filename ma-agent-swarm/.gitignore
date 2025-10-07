@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+
+# Data directories (exclude from git)
+data/input/*.pdf
+data/extracted/*.json
+data/output/*.pdf
+data/output/*.json
+
+# Keep directory structure
+!data/input/.gitkeep
+!data/extracted/.gitkeep
+!data/output/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
